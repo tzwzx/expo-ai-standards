@@ -7,6 +7,14 @@ description: Shared unit-testing conventions (jest-expo)
 
 # Unit testing (`bun test:unit`, coverage via `bun test:unit:coverage`)
 
+## When to write tests
+
+- Always add a unit test or component test when implementing a new feature.
+- When fixing a bug, add a test that reproduces it if one does not already exist, to prevent regressions.
+- To disable test code, comment it out rather than deleting it.
+
+## How to write tests
+
 - Runner is Jest + the `jest-expo` preset. react-native / Expo SDK mocks are provided by jest-expo, so do not mock them yourself.
 - Tests live under `src/__tests__/`, mirroring `src/`. Test names and comments are in English (matching the rest of this repo).
 - Global mocks go in `jest.setup.ts`. Before adding a mock, follow the order: (1) rewrite the test to pass against the real module, (2) a file-local `jest.mock`, (3) only then a global mock. Jest keeps a separate module registry per test file, so a file-local mock does not leak to other files.
