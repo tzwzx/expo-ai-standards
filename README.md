@@ -19,11 +19,10 @@ prefix は**その断片が何語で書かれているか**を示すだけで、
 ような指定を紛れ込ませると、英語化したつもりが生成コードの規約まで書き換わる。
 生成物の言語は各断片の本文で明示すること（`en-unit-testing` はコメントを日本語と明記している）。
 
-**断片の見出しは `##` 始まりで書く。** rulesync は各リポの root ルール（`.rulesync/rules/general.md`）に
-非 root ルールを**連結するだけ**で、見出しレベルの正規化もセクション区切りの挿入もしない。
-`#` で始めると AGENTS.md に h1 が複数生まれ、さらに後続の `##` 始まりの断片が直前の h1 の
-**子セクションとして読める構造**になる（実際にコミットメッセージ規約がユニットテストの配下に
-落ちていた。2026-07-29 に是正）。
+**断片の見出しは `##` 始まりで書く。** 断片は各リポの root ルール（`.rulesync/rules/general.md`）と
+並ぶ形で出力され、rulesync は見出しレベルの正規化をしない。`#` で始めると root の h1 と衝突し、
+後続の `##` 始まりの断片が直前の h1 の**子セクションとして読める構造**になる
+（実際にコミットメッセージ規約がユニットテストの配下に落ちていた。2026-07-29 に是正）。
 
 **特定のファイル群でしか使わない断片には `globs` を付ける。** rulesync が各ツールの条件付きロード機構へ
 変換する（実測確認済み）:
@@ -32,12 +31,15 @@ prefix は**その断片が何語で書かれているか**を示すだけで、
 | --- | --- | --- | --- |
 | claudecode | `CLAUDE.md` | `.claude/rules/<name>.md` | `paths:`（該当ファイルを読んだときだけロード） |
 | cursor | `.cursor/rules/<name>.mdc` | 同左 | `globs:` |
-| codexcli | `AGENTS.md` | **root へ fold** | 効かない（常に全文） |
 
 Claude Code の公式ドキュメントも、CLAUDE.md が大きくなったら path スコープ付きルールへ逃がすことを
 推奨している。**`@AGENTS.md` のようなインポートは整理にはなるがコンテキストは減らない**（起動時に全文
-ロードされる）ため、削減したいなら `globs` を使う。ただし Codex CLI には効かないので、
-Codex 側は常に全文を読む前提で書く。
+ロードされる）ため、削減したいなら `globs` を使う。
+
+> **`codexcli` は使わない。** Codex CLI は非 root ルールを `AGENTS.md` へ全文 fold する仕様で、
+> 条件付きロード機構を持たない。実際に使うのは Claude Code と Cursor だけなので、同じ内容を
+> 抱えるだけの `AGENTS.md` は 2026-07-29 に全リポで廃止した。復活させる場合、Codex 側は
+> 常に全文を読む前提になる。
 
 **`globs` を持たない断片には `cursor: { alwaysApply: true }` を付ける。** Cursor は `globs` も
 `alwaysApply` も無い `.mdc` を Manual 扱いにし、`@` で明示的に呼ぶまで適用しない。Claude Code は
@@ -54,9 +56,10 @@ Codex 側は常に全文を読む前提で書く。
 ```jsonc
 {
   "targets": {
-    "cursor": ["hooks"],
-    "claudecode": ["hooks", "skills"],
-    "codexcli": ["rules", "hooks"],
+    // rules を有効にすると root は CLAUDE.md / .cursor/rules へ、非 root は
+    // .claude/rules / .cursor/rules へ分かれて出る（globs による条件付きロードが効く）
+    "cursor": ["rules", "hooks"],
+    "claudecode": ["rules", "hooks", "skills"],
   },
   "sources": [
     {
@@ -82,7 +85,7 @@ Codex 側は常に全文を読む前提で書く。
 `unit-testing` のような「ルール本文の記述言語」の話とは別物。日本語でコミットするなら
 `ja-commit-message` を選ぶ（本文が日本語なのはその副次的な結果にすぎない）。
 
-- 取得結果は `.rulesync/rules/.curated/` に展開され（gitignore 対象）、`rulesync generate` で AGENTS.md 等に合成される
+- 取得結果は `.rulesync/rules/.curated/` に展開され（gitignore 対象）、`rulesync generate` で `CLAUDE.md` / `.claude/rules/` / `.cursor/rules/` へ出力される
 - `rulesync.lock` はコミットする（commit SHA + integrity で再現性を担保）
 - CI では `bunx rulesync install --frozen` + `bunx rulesync generate --check` でドリフト検知
 - 各リポの `postinstall` 推奨形: `lefthook install && bunx rulesync install && bun rulesync`
@@ -101,13 +104,24 @@ awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' \
 
 ## 変更したときの確認
 
-ここの変更は **Expo アプリ7本すべてに一斉に効く**。消費側で実際に合成されるところまで確認する。
+ここの変更は **Expo アプリ7本と expo-oxc-config に一斉に効く**。消費側で実際に合成されるところまで確認する。
 
 ```bash
 cd ../<いずれかのアプリ>
 bunx rulesync install --update   # 正本を取り直す
 bun rulesync                     # generate + post-generate.sh
-git diff                         # AGENTS.md / .cursorrules に意図どおり反映されたか
+
+# 生成物は gitignore 対象なので git diff には出ない。中身を直接見る
+cat CLAUDE.md .claude/rules/*.md
+head -4 .cursor/rules/*.mdc      # alwaysApply / globs が付いているか
+
+git diff                         # .cursorrules / rulesync.lock に反映されたか
+```
+
+`globs` を付けた断片は、`claude -p` で実機確認できる（該当ファイルを読む前後で切り替わるはず）:
+
+```bash
+claude -p "Answer YES or NO only, use no tools: is <ルールの一文> in your context?" --allowedTools ""
 ```
 
 `rules/` のファイルを増やした場合、各アプリの `rulesync.jsonc` の `sources[].rules` に
@@ -116,6 +130,7 @@ git diff                         # AGENTS.md / .cursorrules に意図どおり�
 ## 運用ルール
 
 - ルールを変えたいときは**このリポジトリを変更**し、各リポで `bunx rulesync install --update` する（生成物や各リポのコピーを直接編集しない）
+- **`post-generate.sh` で `CLAUDE.md` を上書きしない。** rulesync が claudecode target で生成する root ルールを潰すと `.claude/rules/` の path スコープが効かなくなる。以前 `printf '@AGENTS.md\n' > CLAUDE.md` というインポートブリッジを置いており、全文 fold された `AGENTS.md` がロードされて条件付きロードが無効化されていた（2026-07-29 に撤去）
 - **スキルはここに置かない。** ツール由来のスキル／コマンドはそのツール自身に生成させる（例: `store-shots` の `.claude/commands/store-shots.md` は `bunx store-shots init` が書き出す）。ここへコピーすると、生成元が更新されても追従しない劣化コピーになる（実際に 2026-07 に store-shots で発生し、2026-07-29 に撤去した）
 - 各リポ固有の gotcha（固有のモック構成・罠・データ規約など）は各リポの `.rulesync/rules/general.md` に置く。ここには**フリート全体に当てはまるものだけ**を置く
 - **ツール（lint / formatter / 型）で担保できるルールは置かない。AI が既存コードを読めば分かることも置かない。** ここに残す価値があるのは「破ると静かに壊れる」実測ベースの罠だけ。実測の裏付けを失ったルールは撤去する（styling ルールは根拠にしていた定数の重複が解消済みで、かつ書いてあっても違反が残っていたため 2026-07-29 に撤去した）
