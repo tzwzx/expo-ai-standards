@@ -10,9 +10,10 @@ Expo アプリ群で共有する AI エージェント用ルールの正本リ�
 rules/    … 共有ルール断片（rulesync sources の rules。フラット配置・直下の .md のみ認識される）
   ja-*.md … 日本語で運用するリポジトリ向け
   en-*.md … 英語で運用するリポジトリ向け
-skills/   … 共有スキル（rulesync sources の skills）
-  store-shots/SKILL.md
 ```
+
+**スキルはここでは配らない。** rulesync sources の `skills` は使わず、
+リポジトリ固有のスキルは各リポの `.rulesync/skills/` に置く（理由は「運用ルール」参照）。
 
 ## 使い方（消費側）
 
@@ -37,7 +38,6 @@ skills/   … 共有スキル（rulesync sources の skills）
         "ja-styling",
         "ja-commit-message",
       ],
-      "skills": ["store-shots"],  // store-shots 運用リポのみ
     },
   ],
   "delete": true,
@@ -84,6 +84,7 @@ git diff                         # AGENTS.md / .cursorrules に意図どおり�
 ## 運用ルール
 
 - ルールを変えたいときは**このリポジトリを変更**し、各リポで `bunx rulesync install --update` する（生成物や各リポのコピーを直接編集しない）
+- **スキルはここに置かない。** ツール由来のスキル／コマンドはそのツール自身に生成させる（例: `store-shots` の `.claude/commands/store-shots.md` は `bunx store-shots init` が書き出す）。ここへコピーすると、生成元が更新されても追従しない劣化コピーになる（実際に 2026-07 に store-shots で発生し、2026-07-29 に撤去した）
 - 各リポ固有の gotcha（固有のモック構成・罠・データ規約など）は各リポの `.rulesync/rules/general.md` に置く。ここには**フリート全体に当てはまるものだけ**を置く
 - ja / en は対の内容を保つ。片方だけ更新したら、もう片方も同じ PR で更新する
 - タグ（v1.0.0 など）でバージョニングし、消費側は `tzwzx/expo-ai-standards@v1.0.0` 形式で固定してもよい
