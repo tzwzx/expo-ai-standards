@@ -1,6 +1,6 @@
 # expo-ai-standards
 
-tazawa の Expo アプリ群（sync / kata / shikaku-collection / widget-now / yaboyo / yugaku / expo-boilerplate）で共有する AI エージェント用ルールの正本リポジトリ。
+Expo アプリ群（sync / kata / shikaku-collection / widget-now / yaboyo / yugaku / expo-boilerplate）で共有する AI エージェント用ルールの正本リポジトリ。
 
 各リポジトリの [rulesync](https://github.com/dyoshikawa/rulesync) から**宣言的ソース**として参照される。ルールの重複コピペと文言ドリフトを構造的に防ぐのが目的。
 
