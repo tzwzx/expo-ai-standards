@@ -1,6 +1,6 @@
 # expo-ai-standards
 
-Expo アプリ群（sync / kata / shikaku-collection / widget-now / yaboyo / yugaku / expo-boilerplate）で共有する AI エージェント用ルールの正本リポジトリ。
+Expo アプリ群で共有する AI エージェント用ルールの正本リポジトリ。
 
 各リポジトリの [rulesync](https://github.com/dyoshikawa/rulesync) から**宣言的ソース**として参照される。ルールの重複コピペと文言ドリフトを構造的に防ぐのが目的。
 
@@ -8,8 +8,8 @@ Expo アプリ群（sync / kata / shikaku-collection / widget-now / yaboyo / yug
 
 ```
 rules/    … 共有ルール断片（rulesync sources の rules。フラット配置・直下の .md のみ認識される）
-  ja-*.md … アプリ6リポ向け（日本語）
-  en-*.md … expo-boilerplate 向け（英語・公開リポのため）
+  ja-*.md … 日本語で運用するリポジトリ向け
+  en-*.md … 英語で運用するリポジトリ向け
 skills/   … 共有スキル（rulesync sources の skills）
   store-shots/SKILL.md
 ```
@@ -44,7 +44,7 @@ skills/   … 共有スキル（rulesync sources の skills）
 }
 ```
 
-expo-boilerplate は `en-*` を選択する:
+英語で運用するリポジトリは `en-*` を選択する:
 
 ```jsonc
 "rules": ["en-unit-testing", "en-commit-message"]
@@ -60,7 +60,7 @@ expo-boilerplate は `en-*` を選択する:
 Cursor のコミットメッセージ生成（ソース管理パネルの✨）に効くのはレガシーな `.cursorrules` **だけ**（`.cursor/rules` / AGENTS.md は対象外。Cursor スタッフ確認済み・2026-07 時点）。rulesync は `.cursorrules` を生成できないため、各リポの `.rulesync/scripts/post-generate.sh` で正本から生成する:
 
 ```bash
-# ja-commit-message.md（boilerplate は en-）の frontmatter を剥がして .cursorrules を生成
+# ja-commit-message.md（英語運用なら en-）の frontmatter を剥がして .cursorrules を生成
 awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' \
   .rulesync/rules/.curated/ja-commit-message.md > .cursorrules
 ```

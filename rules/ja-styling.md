@@ -8,7 +8,7 @@ globs:
   - "src/**/*.tsx"
 ---
 
-# Styling
+# スタイリング
 
-- All visual values (colors, spacing, sizes, radii, typography, etc.) must be managed as named constants in `src/theme.ts`. Do not use magic numbers or hard-coded hex colors in component files.
-- Before adding a new constant, check if an existing one already covers the value.
+- 見た目に関わる値（色・余白・サイズ・角丸・タイポグラフィなど）はすべて `src/theme.ts` の名前付き定数として管理する。コンポーネントのファイルにマジックナンバーや直書きの hex カラーを置かない。
+- 新しい定数を足す前に、同じ値をカバーする既存の定数が無いか確認する。
