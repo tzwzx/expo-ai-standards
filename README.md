@@ -67,6 +67,20 @@ awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' \
 
 `.cursorrules` は各リポで**コミットする**。
 
+## 変更したときの確認
+
+ここの変更は **Expo アプリ7本すべてに一斉に効く**。消費側で実際に合成されるところまで確認する。
+
+```bash
+cd ../<いずれかのアプリ>
+bunx rulesync install --update   # 正本を取り直す
+bun rulesync                     # generate + post-generate.sh
+git diff                         # AGENTS.md / .cursorrules に意図どおり反映されたか
+```
+
+`rules/` のファイルを増やした場合、各アプリの `rulesync.jsonc` の `sources[].rules` に
+名前を足さないと**取り込まれないまま静かに無視される**（エラーにならない）。
+
 ## 運用ルール
 
 - ルールを変えたいときは**このリポジトリを変更**し、各リポで `bunx rulesync install --update` する（生成物や各リポのコピーを直接編集しない）
