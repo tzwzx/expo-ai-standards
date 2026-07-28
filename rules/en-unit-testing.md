@@ -5,15 +5,15 @@ targets:
 description: Shared unit-testing conventions (jest-expo)
 ---
 
-# Unit testing (`bun test:unit`, coverage via `bun test:unit:coverage`)
+## Unit testing (`bun test:unit`, coverage via `bun test:unit:coverage`)
 
-## When to write tests
+### When to write tests
 
 - Always add a unit test or component test when implementing a new feature.
 - When fixing a bug, add a test that reproduces it if one does not already exist, to prevent regressions.
 - To disable test code, comment it out rather than deleting it.
 
-## How to write tests
+### How to write tests
 
 - Runner is Jest + the `jest-expo` preset. react-native / Expo SDK mocks are provided by jest-expo, so do not mock them yourself.
 - Tests live under `src/__tests__/`, mirroring `src/`. Test names and comments are written in Japanese — this rule file is in English for the agent's benefit, which does not change the language of the code.

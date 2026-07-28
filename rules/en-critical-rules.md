@@ -5,7 +5,7 @@ targets:
 description: Baseline rules for any code change
 ---
 
-# Baseline rules for code changes
+## Baseline rules for code changes
 
 > 📌 Unless explicitly instructed otherwise, a code change must not affect any of the following:
 
