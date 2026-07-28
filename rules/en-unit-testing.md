@@ -3,6 +3,12 @@ root: false
 targets:
   - "*"
 description: Shared unit-testing conventions (jest-expo)
+globs:
+  - "**/__tests__/**"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "jest.setup.ts"
+  - "jest.config.cjs"
 ---
 
 ## Unit testing (`bun test:unit`, coverage via `bun test:unit:coverage`)
