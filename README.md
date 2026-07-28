@@ -34,6 +34,7 @@ skills/   … 共有スキル（rulesync sources の skills）
       "rules": [
         "ja-critical-rules",
         "ja-unit-testing",
+        "ja-styling",
         "ja-commit-message",
       ],
       "skills": ["store-shots"],  // store-shots 運用リポのみ
