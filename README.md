@@ -39,6 +39,11 @@ Claude Code の公式ドキュメントも、CLAUDE.md が大きくなったら 
 ロードされる）ため、削減したいなら `globs` を使う。ただし Codex CLI には効かないので、
 Codex 側は常に全文を読む前提で書く。
 
+**`globs` を持たない断片には `cursor: { alwaysApply: true }` を付ける。** Cursor は `globs` も
+`alwaysApply` も無い `.mdc` を Manual 扱いにし、`@` で明示的に呼ぶまで適用しない。Claude Code は
+`paths` 無し = 常時ロードなので指定は要らず、この一行は Cursor のためだけにある。
+**各リポの `general.md`（root）にも必要**（root であっても Cursor では同列の `.mdc` として出るため）。
+
 **スキルはここでは配らない。** rulesync sources の `skills` は使わず、
 リポジトリ固有のスキルは各リポの `.rulesync/skills/` に置く（理由は「運用ルール」参照）。
 
