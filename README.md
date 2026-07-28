@@ -27,14 +27,13 @@ skills/   … 共有スキル（rulesync sources の skills）
   },
   "sources": [
     {
-      "source": "tzwzx/expo-ai-standards",
+      // ⚠️ github transport（"tzwzx/expo-ai-standards" 形式）は未認証 API の
+      // レート制限で失敗するため、git transport + https URL を使う
+      "source": "https://github.com/tzwzx/expo-ai-standards.git",
+      "transport": "git",
       "rules": [
         "ja-critical-rules",
         "ja-unit-testing",
-        "ja-package-management",
-        "ja-typescript",
-        "ja-react",
-        "ja-styling",
         "ja-commit-message",
       ],
       "skills": ["store-shots"],  // store-shots 運用リポのみ
