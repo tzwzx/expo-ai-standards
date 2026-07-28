@@ -8,9 +8,16 @@ Expo アプリ群で共有する AI エージェント用ルールの正本リ�
 
 ```
 rules/    … 共有ルール断片（rulesync sources の rules。フラット配置・直下の .md のみ認識される）
-  ja-*.md … 日本語で運用するリポジトリ向け
-  en-*.md … 英語で運用するリポジトリ向け
+  en-*.md … AI しか読まないルール（既定）
+  ja-*.md … 生成物が日本語であることを要求するルール（現状 commit-message のみ）
 ```
+
+prefix は**その断片が何語で書かれているか**を示すだけで、リポジトリの運用言語ではない。
+ルール本文は人間が読み返さないので、**英語で書くのを既定とする**（同じ内容で日本語の 1.5〜2 倍のトークンを食うため）。
+
+**ルールの記述言語と、AI に書かせるコードの言語は別。** `en-*` に「テスト名・コメントは英語で」の
+ような指定を紛れ込ませると、英語化したつもりが生成コードの規約まで書き換わる。
+生成物の言語は各断片の本文で明示すること（`en-unit-testing` はコメントを日本語と明記している）。
 
 **スキルはここでは配らない。** rulesync sources の `skills` は使わず、
 リポジトリ固有のスキルは各リポの `.rulesync/skills/` に置く（理由は「運用ルール」参照）。
@@ -33,9 +40,9 @@ rules/    … 共有ルール断片（rulesync sources の rules。フラット�
       "source": "https://github.com/tzwzx/expo-ai-standards.git",
       "transport": "git",
       "rules": [
-        "ja-critical-rules",
-        "ja-unit-testing",
-        "ja-styling",
+        "en-critical-rules",
+        "en-unit-testing",
+        "en-styling",
         "ja-commit-message",
       ],
     },
@@ -44,11 +51,12 @@ rules/    … 共有ルール断片（rulesync sources の rules。フラット�
 }
 ```
 
-英語で運用するリポジトリは `en-*` を選択する:
+同名で ja / en の両方がある断片（現状 `commit-message` のみ）は、どちらか一方だけを選ぶ。
+両方を並べると同じ規約が二重に合成される。
 
-```jsonc
-"rules": ["en-unit-testing", "en-commit-message"]
-```
+なお `commit-message` の ja / en は**生成されるコミットメッセージ自体の言語**を切り替えるもので、
+`unit-testing` のような「ルール本文の記述言語」の話とは別物。日本語でコミットするなら
+`ja-commit-message` を選ぶ（本文が日本語なのはその副次的な結果にすぎない）。
 
 - 取得結果は `.rulesync/rules/.curated/` に展開され（gitignore 対象）、`rulesync generate` で AGENTS.md 等に合成される
 - `rulesync.lock` はコミットする（commit SHA + integrity で再現性を担保）
@@ -86,5 +94,5 @@ git diff                         # AGENTS.md / .cursorrules に意図どおり�
 - ルールを変えたいときは**このリポジトリを変更**し、各リポで `bunx rulesync install --update` する（生成物や各リポのコピーを直接編集しない）
 - **スキルはここに置かない。** ツール由来のスキル／コマンドはそのツール自身に生成させる（例: `store-shots` の `.claude/commands/store-shots.md` は `bunx store-shots init` が書き出す）。ここへコピーすると、生成元が更新されても追従しない劣化コピーになる（実際に 2026-07 に store-shots で発生し、2026-07-29 に撤去した）
 - 各リポ固有の gotcha（固有のモック構成・罠・データ規約など）は各リポの `.rulesync/rules/general.md` に置く。ここには**フリート全体に当てはまるものだけ**を置く
-- ja / en は対の内容を保つ。片方だけ更新したら、もう片方も同じ PR で更新する
+- **新しい断片は `en-` で書く。** 対訳（`ja-`）は作らない。生成物の言語を切り替える必要がある断片（`commit-message` のような）に限って対を用意し、その場合は片方だけ更新せず同じ PR で両方を更新する
 - タグ（v1.0.0 など）でバージョニングし、消費側は `tzwzx/expo-ai-standards@v1.0.0` 形式で固定してもよい
