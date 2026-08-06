@@ -88,7 +88,7 @@ Claude Code の公式ドキュメントも、CLAUDE.md が大きくなったら 
 - 取得結果は `.rulesync/rules/.curated/` に展開され（gitignore 対象）、`rulesync generate` で `CLAUDE.md` / `.claude/rules/` / `.cursor/rules/` へ出力される
 - `rulesync.lock` はコミットする（commit SHA + integrity で再現性を担保）
 - CI では `bunx rulesync install --frozen` + `bunx rulesync generate --check` でドリフト検知
-- 各リポの `postinstall` 推奨形: `lefthook install && bunx rulesync install && bun rulesync`
+- 各リポの `postinstall` 推奨形: `lefthook install && bunx rulesync install --frozen && bun rulesync`（lock の更新は明示的な `rulesync install --update` でのみ行う）
 
 ## .cursorrules ブリッジ（コミットメッセージ規約）
 
